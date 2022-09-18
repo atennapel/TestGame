@@ -20,12 +20,21 @@ import com.atennapel.testgame.actions.*;
 import static com.atennapel.testgame.Constants.*;
 
 public class TestGame extends ApplicationAdapter {
+  private static enum InputMode {
+    NORMAL,
+    DOOR
+  }
+
   private SpriteBatch batch;
   private TextureAtlas atlas;
   private TextureRegion playerRegion;
   private TextureRegion monsterRegion;
   private TextureRegion wallRegion;
+  private TextureRegion doorClosedRegion;
+  private TextureRegion doorOpenRegion;
   private BitmapFont font;
+
+  private InputMode inputMode;
 
   private Random random;
 
@@ -45,17 +54,21 @@ public class TestGame extends ApplicationAdapter {
   @Override
   public void create() {
     batch = new SpriteBatch();
-    atlas = new TextureAtlas("testgame.atlas");
+    atlas = new TextureAtlas("sheet.atlas");
     AtlasRegion region = atlas.findRegion("sheet");
     playerRegion = new TextureRegion(region, 0, 0, 16, 16);
-    monsterRegion = new TextureRegion(region, 0, 16, 16, 16);
-    wallRegion = new TextureRegion(region, 16, 0, 16, 16);
+    monsterRegion = new TextureRegion(region, 16, 0, 16, 16);
+    wallRegion = new TextureRegion(region, 0, 16, 16, 16);
+    doorClosedRegion = new TextureRegion(region, 16, 16, 16, 16);
+    doorOpenRegion = new TextureRegion(region, 32, 16, 16, 16);
     font = new BitmapFont();
+
+    inputMode = InputMode.NORMAL;
 
     random = new Random();
 
     player = new Player(3, 3);
-    monster = new Monster(6, 6);
+    monster = new Monster(7, 6);
 
     actors = new ArrayList<>();
     actors.add(player);
@@ -65,43 +78,53 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private void handleInput() {
-    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5) || Gdx.input.isKeyJustPressed(Input.Keys.L))
+    if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+      inputMode = InputMode.DOOR;
+    } else if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_5) || Gdx.input.isKeyPressed(Input.Keys.L))
       player.setNextAction(new Wait());
-    int dx = 0, dy = 0;
-    if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_8)
-        || Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-      dy = -1;
+    else {
+      int dx = 0, dy = 0;
+      if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_8)
+          || Gdx.input.isKeyPressed(Input.Keys.O)) {
+        dy = -1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_2)
+          || Gdx.input.isKeyPressed(Input.Keys.PERIOD)) {
+        dy = 1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_4)
+          || Gdx.input.isKeyPressed(Input.Keys.K)) {
+        dx = -1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_6)
+          || Gdx.input.isKeyPressed(Input.Keys.SEMICOLON)) {
+        dx = 1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_7) || Gdx.input.isKeyPressed(Input.Keys.I)) {
+        dx = -1;
+        dy = -1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_9) || Gdx.input.isKeyPressed(Input.Keys.P)) {
+        dx = 1;
+        dy = -1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_1) || Gdx.input.isKeyPressed(Input.Keys.COMMA)) {
+        dx = -1;
+        dy = 1;
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_3) || Gdx.input.isKeyPressed(Input.Keys.SLASH)) {
+        dx = 1;
+        dy = 1;
+      }
+      if (dx != 0 || dy != 0) {
+        if (inputMode == InputMode.NORMAL)
+          player.setNextAction(new Move(dx, dy, false, true));
+        else if (inputMode == InputMode.DOOR) {
+          inputMode = InputMode.NORMAL;
+          player.setNextAction(new UseDoor(player.getX() + dx, player.getY() + dy));
+        }
+      }
     }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)
-        || Gdx.input.isKeyJustPressed(Input.Keys.PERIOD)) {
-      dy = 1;
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)
-        || Gdx.input.isKeyJustPressed(Input.Keys.K)) {
-      dx = -1;
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)
-        || Gdx.input.isKeyJustPressed(Input.Keys.SEMICOLON)) {
-      dx = 1;
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_7) || Gdx.input.isKeyJustPressed(Input.Keys.I)) {
-      dx = -1;
-      dy = -1;
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_9) || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-      dx = 1;
-      dy = -1;
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1) || Gdx.input.isKeyJustPressed(Input.Keys.COMMA)) {
-      dx = -1;
-      dy = 1;
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3) || Gdx.input.isKeyJustPressed(Input.Keys.SLASH)) {
-      dx = 1;
-      dy = 1;
-    }
-    if (dx != 0 || dy != 0)
-      player.setNextAction(new Move(dx, dy));
   }
 
   private void advanceActor() {
@@ -140,17 +163,32 @@ public class TestGame extends ApplicationAdapter {
   private void draw() {
     ScreenUtils.clear(96 / 255f, 62 / 255f, 52 / 255f, 1);
     batch.begin();
-    batch.setColor(156 / 255f, 178 / 255f, 112 / 255f, 1);
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT; y++) {
-        if (map.isBlocked(x, y))
-          batch.draw(wallRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+        Tile tile = map.get(x, y);
+        switch (tile) {
+          case WALL:
+            batch.setColor(156 / 255f, 178 / 255f, 112 / 255f, 1);
+            batch.draw(wallRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+            break;
+          case DOOR_CLOSED:
+            batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+            batch.draw(doorClosedRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+            break;
+          case DOOR_OPEN:
+            batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+            batch.draw(doorOpenRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+            break;
+          default:
+        }
       }
     }
+    batch.setColor(154 / 255f, 64 / 255f, 55 / 255f, 1);
     batch.draw(monsterRegion, monster.getX() * GRID, (HEIGHT - 1 - monster.getY()) * GRID, GRID, GRID);
+    batch.setColor(81 / 255f, 143 / 255f, 77 / 255f, 1);
     batch.draw(playerRegion, player.getX() * GRID, (HEIGHT - 1 - player.getY()) * GRID, GRID, GRID);
     batch.setColor(1, 1, 1, 1);
-    String debugMsg = "" + frame + ", " + turn + ", " + playerTurn + ", " + player.getEnergy() + ", "
+    String debugMsg = "" + frame + ", (" + player.getX() + ", " + player.getY() + ")" + ", " + turn + ", " + playerTurn + ", " + player.getEnergy() + ", "
         + monster.getEnergy();
     font.draw(batch, debugMsg, 2 * GRID, (HEIGHT - 2) * GRID);
     batch.end();
@@ -188,5 +226,9 @@ public class TestGame extends ApplicationAdapter {
         return Optional.of(actor);
     }
     return Optional.empty();
+  }
+
+  public boolean anyActorAt(int x, int y) {
+    return actorAt(x, y).isEmpty();
   }
 }

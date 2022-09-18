@@ -3,15 +3,25 @@ package com.atennapel.testgame.actions;
 import java.util.Optional;
 
 import com.atennapel.testgame.TestGame;
+import com.atennapel.testgame.Tile;
 import com.atennapel.testgame.actors.Actor;
+import com.atennapel.testgame.Map;
 
 public class Move implements Action {
   private final int dx;
   private final int dy;
+  private final boolean waitOnBlocked;
+  private final boolean canOpenDoors;
 
-  public Move(int dx, int dy) {
+  public Move(int dx, int dy, boolean waitOnBlocked, boolean canOpenDoors) {
     this.dx = dx;
     this.dy = dy;
+    this.waitOnBlocked = waitOnBlocked;
+    this.canOpenDoors = canOpenDoors;
+  }
+
+  public Move(int dx, int dy) {
+    this(dx, dy, true, false);
   }
 
   @Override
@@ -20,8 +30,11 @@ public class Move implements Action {
       return ActionResult.alternateAction(new Wait());
     int x = actor.getX() + dx;
     int y = actor.getY() + dy;
-    if (game.getMap().isBlocked(x, y))
-      return ActionResult.failure();
+    Map map = game.getMap();
+    if (canOpenDoors && map.is(x, y, Tile.DOOR_CLOSED))
+      return ActionResult.alternateAction(new OpenDoor(x, y));
+    if (map.isBlocked(x, y))
+      return waitOnBlocked ? ActionResult.alternateAction(new Wait()) : ActionResult.failure();
     Optional<Actor> blockingActor = game.actorAt(x, y);
     if (blockingActor.isEmpty()) {
       actor.setX(x);

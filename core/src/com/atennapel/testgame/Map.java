@@ -1,23 +1,56 @@
 package com.atennapel.testgame;
 
 import static com.atennapel.testgame.Constants.*;
+import static com.atennapel.testgame.Tile.*;
 
 public class Map {
-  private boolean[][] obstacles;
+  private Tile[][] map;
 
   public Map() {
-    obstacles = new boolean[WIDTH][HEIGHT];
-    for (int i = 0; i < WIDTH; i++) {
-      obstacles[i][0] = true;
-      obstacles[i][HEIGHT - 1] = true;
-      if (i > 0 && i < HEIGHT - 1) {
-        obstacles[0][i] = true;
-        obstacles[WIDTH - 1][i] = true;
+    map = new Tile[WIDTH][HEIGHT];
+
+    // floor
+    for (int x = 0; x < WIDTH; x++) {
+      for (int y = 0; y < HEIGHT; y++) {
+        map[x][y] = EMPTY;
       }
     }
+
+    // place walls
+    for (int i = 0; i < WIDTH; i++) {
+      map[i][0] = WALL;
+      map[i][HEIGHT - 1] = WALL;
+      if (i > 0 && i < HEIGHT - 1) {
+        map[0][i] = WALL;
+        map[WIDTH - 1][i] = WALL;
+      }
+    }
+    for (int i = 6; i < WIDTH - 6; i++) {
+      map[i][5] = WALL;
+      map[i][HEIGHT - 6] = WALL;
+      if (i > 5 && i < HEIGHT - 6) {
+        map[6][i] = WALL;
+        map[WIDTH - 7][i] = WALL;
+      }
+    }
+
+    map[6][7] = DOOR_CLOSED;
   }
 
   public boolean isBlocked(int x, int y) {
-    return obstacles[x][y];
+    Tile t = map[x][y];
+    return t == WALL || t == DOOR_CLOSED;
+  }
+
+  public Tile get(int x, int y) {
+    return map[x][y];
+  }
+
+  public void set(int x, int y, Tile t) {
+    map[x][y] = t;
+  }
+
+  public boolean is(int x, int y, Tile t) {
+    return map[x][y] == t;
   }
 }
