@@ -5,7 +5,7 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 
 ## TODO
 - [x] Doors
-- [ ] Logs
+- [x] Logs
 - [ ] Fix double inputs
 - [ ] Pathfinding for the monster
 - [ ] Sliding animation

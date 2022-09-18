@@ -21,6 +21,7 @@ public class OpenDoor implements Action {
     Tile tile = map.get(x, y);
     if (tile == DOOR_CLOSED) {
       map.set(x, y, DOOR_OPEN);
+      game.addLog(actor + " opens a door.");
       return ActionResult.success();
     } else return ActionResult.failure();
   }

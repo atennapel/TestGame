@@ -19,8 +19,8 @@ public class Map {
     // place walls
     for (int i = 0; i < WIDTH; i++) {
       map[i][0] = WALL;
-      map[i][HEIGHT - 1] = WALL;
-      if (i > 0 && i < HEIGHT - 1) {
+      map[i][HEIGHT - 3] = WALL;
+      if (i > 0 && i < HEIGHT - 3) {
         map[0][i] = WALL;
         map[WIDTH - 1][i] = WALL;
       }

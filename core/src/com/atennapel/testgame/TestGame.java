@@ -3,6 +3,7 @@ package com.atennapel.testgame;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +37,7 @@ public class TestGame extends ApplicationAdapter {
   private TextureRegion doorOpenRegion;
   private BitmapFont font;
 
-  private InputMode inputMode;
+  private InputMode inputMode = InputMode.NORMAL;
 
   private Random random;
 
@@ -43,13 +46,16 @@ public class TestGame extends ApplicationAdapter {
   private Player player;
   private Monster monster;
 
-  private List<Actor> actors;
+  private List<Actor> actors = new ArrayList<>();
   private int currentActor = 0;
 
   private int frame = 0;
   private int turn = 0;
   private int playerTurn = 0;
   private float cooldown = 0;
+  private List<String> logs = new ArrayList<>();
+
+  private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
   @Override
   public void create() {
@@ -63,14 +69,10 @@ public class TestGame extends ApplicationAdapter {
     doorOpenRegion = new TextureRegion(region, 32, 16, 16, 16);
     font = new BitmapFont();
 
-    inputMode = InputMode.NORMAL;
-
     random = new Random();
 
     player = new Player(3, 3);
     monster = new Monster(7, 6);
-
-    actors = new ArrayList<>();
     actors.add(player);
     actors.add(monster);
 
@@ -80,39 +82,40 @@ public class TestGame extends ApplicationAdapter {
   private void handleInput() {
     if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
       inputMode = InputMode.DOOR;
-    } else if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_5) || Gdx.input.isKeyPressed(Input.Keys.L))
+      addLog("Pick a direction to use a door.");
+    } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5) || Gdx.input.isKeyJustPressed(Input.Keys.L))
       player.setNextAction(new Wait());
     else {
       int dx = 0, dy = 0;
-      if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_8)
-          || Gdx.input.isKeyPressed(Input.Keys.O)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_8)
+          || Gdx.input.isKeyJustPressed(Input.Keys.O)) {
         dy = -1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_2)
-          || Gdx.input.isKeyPressed(Input.Keys.PERIOD)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)
+          || Gdx.input.isKeyJustPressed(Input.Keys.PERIOD)) {
         dy = 1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_4)
-          || Gdx.input.isKeyPressed(Input.Keys.K)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)
+          || Gdx.input.isKeyJustPressed(Input.Keys.K)) {
         dx = -1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_6)
-          || Gdx.input.isKeyPressed(Input.Keys.SEMICOLON)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)
+          || Gdx.input.isKeyJustPressed(Input.Keys.SEMICOLON)) {
         dx = 1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_7) || Gdx.input.isKeyPressed(Input.Keys.I)) {
+      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_7) || Gdx.input.isKeyJustPressed(Input.Keys.I)) {
         dx = -1;
         dy = -1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_9) || Gdx.input.isKeyPressed(Input.Keys.P)) {
+      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_9) || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
         dx = 1;
         dy = -1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_1) || Gdx.input.isKeyPressed(Input.Keys.COMMA)) {
+      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1) || Gdx.input.isKeyJustPressed(Input.Keys.COMMA)) {
         dx = -1;
         dy = 1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_3) || Gdx.input.isKeyPressed(Input.Keys.SLASH)) {
+      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3) || Gdx.input.isKeyJustPressed(Input.Keys.SLASH)) {
         dx = 1;
         dy = 1;
       }
@@ -162,7 +165,10 @@ public class TestGame extends ApplicationAdapter {
 
   private void draw() {
     ScreenUtils.clear(96 / 255f, 62 / 255f, 52 / 255f, 1);
+    
     batch.begin();
+
+    // map
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT; y++) {
         Tile tile = map.get(x, y);
@@ -183,14 +189,28 @@ public class TestGame extends ApplicationAdapter {
         }
       }
     }
+
+    // actors
     batch.setColor(154 / 255f, 64 / 255f, 55 / 255f, 1);
     batch.draw(monsterRegion, monster.getX() * GRID, (HEIGHT - 1 - monster.getY()) * GRID, GRID, GRID);
     batch.setColor(81 / 255f, 143 / 255f, 77 / 255f, 1);
     batch.draw(playerRegion, player.getX() * GRID, (HEIGHT - 1 - player.getY()) * GRID, GRID, GRID);
-    batch.setColor(1, 1, 1, 1);
+    
+    // debug text
+    font.setColor(Color.WHITE);
     String debugMsg = "" + frame + ", (" + player.getX() + ", " + player.getY() + ")" + ", " + turn + ", " + playerTurn + ", " + player.getEnergy() + ", "
         + monster.getEnergy();
     font.draw(batch, debugMsg, 2 * GRID, (HEIGHT - 2) * GRID);
+
+    // logs
+    font.setColor(Color.WHITE);
+    float logY = 2 * GRID - 5;
+    for (int i = logs.size() - 1; i >= 0; i--) {
+      font.draw(batch, logs.get(i), 0, logY);
+      logY -= 15;
+      if (logY < 10) break;
+    }
+
     batch.end();
   }
 
@@ -205,6 +225,7 @@ public class TestGame extends ApplicationAdapter {
   public void dispose() {
     batch.dispose();
     atlas.dispose();
+    font.dispose();
   }
 
   public Map getMap() {
@@ -229,6 +250,11 @@ public class TestGame extends ApplicationAdapter {
   }
 
   public boolean anyActorAt(int x, int y) {
-    return actorAt(x, y).isEmpty();
+    return actorAt(x, y).isPresent();
+  }
+
+  public void addLog(String msg) {
+    LocalDateTime date = LocalDateTime.now();
+    logs.add(date.format(formatter) + " - " + msg);
   }
 }

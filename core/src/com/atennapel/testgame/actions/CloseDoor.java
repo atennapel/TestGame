@@ -21,6 +21,7 @@ public class CloseDoor implements Action {
     Tile tile = map.get(x, y);
     if (tile == DOOR_OPEN && !game.anyActorAt(x, y)) {
       map.set(x, y, DOOR_CLOSED);
+      game.addLog(actor + " closes a door.");
       return ActionResult.success();
     } else return ActionResult.failure();
   }
