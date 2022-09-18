@@ -6,9 +6,11 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 ## TODO
 - [x] Doors
 - [x] Logs
+- [x] Sliding animation
+- [ ] Bump animation
+- [ ] Sounds
 - [ ] Fix double inputs
 - [ ] Pathfinding for the monster
-- [ ] Sliding animation
 - [ ] Connect certain sprites/tiles and colors to actors and tiles
 
 ## Questions

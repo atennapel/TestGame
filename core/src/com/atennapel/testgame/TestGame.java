@@ -54,6 +54,7 @@ public class TestGame extends ApplicationAdapter {
   private int playerTurn = 0;
   private float cooldown = 0;
   private List<String> logs = new ArrayList<>();
+  private boolean updatingAnimations = false;
 
   private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
@@ -80,6 +81,7 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private void handleInput() {
+    // if (updatingAnimations) return;
     if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
       inputMode = InputMode.DOOR;
       addLog("Pick a direction to use a door.");
@@ -135,20 +137,24 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private void processTurn() {
-    cooldown += Gdx.graphics.getDeltaTime();
-    if (cooldown < MAX_COOLDOWN)
+    // cooldown += Gdx.graphics.getDeltaTime();
+    // if (cooldown < MAX_COOLDOWN)
+    // return;
+    // cooldown -= MAX_COOLDOWN;
+    if (updatingAnimations)
       return;
-    cooldown -= MAX_COOLDOWN;
 
     frame++;
 
     Actor actor = actors.get(currentActor);
 
-    if (actor.needsInput()) return;
+    if (actor.needsInput())
+      return;
 
     if (actor.canTakeTurn() || actor.gainEnergy()) {
       Optional<Action> action = actor.getAction(this);
-      if (action.isEmpty()) return;
+      if (action.isEmpty())
+        return;
       ActionResult result = action.get().perform(this, actor);
       while (result.getAlternateAction().isPresent())
         result = result.getAlternateAction().get().perform(this, actor);
@@ -156,16 +162,25 @@ public class TestGame extends ApplicationAdapter {
         actor.resetEnergy();
         advanceActor();
         turn++;
-        if (actor instanceof Player) playerTurn++;
+        if (actor instanceof Player)
+          playerTurn++;
       }
     } else {
       advanceActor();
     }
   }
 
+  private void updateAnimations() {
+    updatingAnimations = false;
+    for (int i = 0; i < actors.size(); i++) {
+      if (actors.get(i).updateAnimation(Gdx.graphics.getDeltaTime()))
+        updatingAnimations = true;
+    }
+  }
+
   private void draw() {
     ScreenUtils.clear(96 / 255f, 62 / 255f, 52 / 255f, 1);
-    
+
     batch.begin();
 
     // map
@@ -192,13 +207,14 @@ public class TestGame extends ApplicationAdapter {
 
     // actors
     batch.setColor(154 / 255f, 64 / 255f, 55 / 255f, 1);
-    batch.draw(monsterRegion, monster.getX() * GRID, (HEIGHT - 1 - monster.getY()) * GRID, GRID, GRID);
+    batch.draw(monsterRegion, monster.getActualX(), HEIGHT * GRID - monster.getActualY() - GRID, GRID, GRID);
     batch.setColor(81 / 255f, 143 / 255f, 77 / 255f, 1);
-    batch.draw(playerRegion, player.getX() * GRID, (HEIGHT - 1 - player.getY()) * GRID, GRID, GRID);
-    
+    batch.draw(playerRegion, player.getActualX(), HEIGHT * GRID - player.getActualY() - GRID, GRID, GRID);
+
     // debug text
     font.setColor(Color.WHITE);
-    String debugMsg = "" + frame + ", (" + player.getX() + ", " + player.getY() + ")" + ", " + turn + ", " + playerTurn + ", " + player.getEnergy() + ", "
+    String debugMsg = "" + frame + ", (" + player.getX() + ", " + player.getY() + ")" + "(" + player.getActualX() + ", "
+        + player.getActualY() + ")" + ", " + turn + ", " + playerTurn + ", " + player.getEnergy() + ", "
         + monster.getEnergy();
     font.draw(batch, debugMsg, 2 * GRID, (HEIGHT - 2) * GRID);
 
@@ -208,7 +224,8 @@ public class TestGame extends ApplicationAdapter {
     for (int i = logs.size() - 1; i >= 0; i--) {
       font.draw(batch, logs.get(i), 0, logY);
       logY -= 15;
-      if (logY < 10) break;
+      if (logY < 10)
+        break;
     }
 
     batch.end();
@@ -218,6 +235,7 @@ public class TestGame extends ApplicationAdapter {
   public void render() {
     handleInput();
     processTurn();
+    updateAnimations();
     draw();
   }
 

@@ -9,8 +9,7 @@ public class Player extends Actor {
   private Optional<Action> action = Optional.empty();
 
   public Player(int x, int y) {
-    this.x = x;
-    this.y = y;
+    super(x, y);
     this.speed = 100;
   }
 

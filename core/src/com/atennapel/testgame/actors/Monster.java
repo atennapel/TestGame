@@ -8,8 +8,7 @@ import com.atennapel.testgame.actions.Move;
 
 public class Monster extends Actor {
   public Monster(int x, int y) {
-    this.x = x;
-    this.y = y;
+    super(x, y);
     this.speed = 50;
   }
 
