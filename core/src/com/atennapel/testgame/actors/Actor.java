@@ -11,6 +11,7 @@ public abstract class Actor {
   protected int y = 0;
   protected int energy = 0;
   protected int speed = 100;
+  protected final Inventory inventory;
 
   // for animations
   protected int actualX = 0;
@@ -20,6 +21,7 @@ public abstract class Actor {
   protected boolean bumping = false;
 
   protected Actor(int x, int y) {
+    this.inventory = new Inventory();
     this.x = x;
     this.y = y;
     actualX = x * GRID;
@@ -48,6 +50,10 @@ public abstract class Actor {
 
   public int getActualY() {
     return actualY;
+  }
+
+  public Inventory getInventory() {
+    return inventory;
   }
 
   public void move(int x, int y) {

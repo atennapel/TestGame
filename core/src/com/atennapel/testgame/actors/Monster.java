@@ -23,9 +23,9 @@ public class Monster extends Actor {
       int dx = game.getRandom().nextInt(3) - 1;
       int dy = game.getRandom().nextInt(3) - 1;
       if (dx == 0 && dy == 0)
-        return Optional.of(new Wait());
+        return Optional.<Action>of(new Wait());
       else
-        return Optional.of(new Move(dx, dy));
+        return Optional.<Action>of(new Move(dx, dy));
     } else {
       int nx = path.get().x;
       int ny = path.get().y;
@@ -39,7 +39,7 @@ public class Monster extends Actor {
         dy = 1;
       else if (ny < y)
         dy = -1;
-      return Optional.of(new Move(dx, dy));
+      return Optional.<Action>of(new Move(dx, dy));
     }
   }
 

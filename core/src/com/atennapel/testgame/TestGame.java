@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import com.atennapel.testgame.actors.*;
 import com.atennapel.testgame.actions.*;
@@ -88,11 +89,26 @@ public class TestGame extends ApplicationAdapter {
 
     map = new Map();
     pathfinding = new Pathfinding(map);
+
+    player.getInventory().add("gold", 10);
   }
 
   private void handleInput() {
     // if (updatingAnimations) return;
-    if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+    if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+      StringBuilder sb = new StringBuilder("You have: ");
+      boolean nonEmpty = false;
+      for (Entry<String, Integer> e : player.getInventory().entries.entrySet()) {
+        if (e.getValue() > 0) {
+          nonEmpty = true;
+          sb.append(e.getValue() + " " + e.getKey() + ", ");
+        }
+      }
+      if (nonEmpty) sb.delete(sb.length() - 2, sb.length());
+      else sb.append("nothing");
+      sb.append(".");
+      addLog(sb.toString());
+    } else if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
       inputMode = InputMode.DOOR;
       addLog("Pick a direction to use a door.");
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5) || Gdx.input.isKeyJustPressed(Input.Keys.L))
