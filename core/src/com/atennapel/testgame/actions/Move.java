@@ -50,7 +50,7 @@ public class Move implements Action {
       actor.move(x, y);
       return ActionResult.success();
     } else {
-      return ActionResult.alternateAction(new Wait());
+      return ActionResult.alternateAction(new Attack(blockingActor.get()));
     }
   }
 

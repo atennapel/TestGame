@@ -9,10 +9,11 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Sliding animation
 - [x] Bump animation
 - [x] Sounds
-- [ ] Attacking
+- [x] Attacking
 - [ ] Fix double inputs
 - [ ] Pathfinding for the monster
-- [ ] Connect certain sprites/tiles and colors to actors and tiles
+- [ ] Field of view
+- [ ] Connect certain sprites/tiles/sounds/colors to actors and tiles
 
 ## Questions
 - Should a NPC be able to fail an action? What should happen in this case?

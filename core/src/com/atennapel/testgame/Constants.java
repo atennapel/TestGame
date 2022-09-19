@@ -7,4 +7,5 @@ public class Constants {
 
   public static final float ANIMATION_SPEED = 300f;
   public static final float BUMPING_RATIO = 0.2f;
+  public static final float ATTACK_RATIO = 0.3f;
 }

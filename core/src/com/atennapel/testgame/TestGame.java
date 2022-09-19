@@ -40,6 +40,7 @@ public class TestGame extends ApplicationAdapter {
   private Sound bumpSound;
   private Sound doorOpenSound;
   private Sound doorCloseSound;
+  private Sound hitSound;
 
   private InputMode inputMode = InputMode.NORMAL;
 
@@ -75,6 +76,7 @@ public class TestGame extends ApplicationAdapter {
     bumpSound = Gdx.audio.newSound(Gdx.files.internal("bump.wav"));
     doorOpenSound = Gdx.audio.newSound(Gdx.files.internal("door_open.wav"));
     doorCloseSound = Gdx.audio.newSound(Gdx.files.internal("door_close.wav"));
+    hitSound = Gdx.audio.newSound(Gdx.files.internal("hit.wav"));
 
     random = new Random();
 
@@ -288,6 +290,9 @@ public class TestGame extends ApplicationAdapter {
         break;
       case DOOR_CLOSE:
         doorCloseSound.play();
+        break;
+      case HIT:
+        hitSound.play();
         break;
     }
   }
