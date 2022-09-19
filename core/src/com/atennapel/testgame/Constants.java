@@ -5,7 +5,6 @@ public class Constants {
   public static final int HEIGHT = 15;
   public static final int GRID = 32;
 
-  public static final float MAX_COOLDOWN = 0.1f;
-
   public static final float ANIMATION_SPEED = 300f;
+  public static final float BUMPING_RATIO = 0.2f;
 }

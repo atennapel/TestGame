@@ -9,16 +9,23 @@ import com.atennapel.testgame.actions.Action;
 public abstract class Actor {
   protected int x = 0;
   protected int y = 0;
-  protected int actualX = 0;
-  protected int actualY = 0;
   protected int energy = 0;
   protected int speed = 100;
+
+  // for animations
+  protected int actualX = 0;
+  protected int actualY = 0;
+  protected int goalX = 0;
+  protected int goalY = 0;
+  protected boolean bumping = false;
 
   protected Actor(int x, int y) {
     this.x = x;
     this.y = y;
-    this.actualX = x * GRID;
-    this.actualY = y * GRID;
+    actualX = x * GRID;
+    actualY = y * GRID;
+    goalX = actualX;
+    goalY = actualY;
   }
 
   public boolean needsInput() {
@@ -35,14 +42,6 @@ public abstract class Actor {
     return y;
   }
 
-  public void setX(int x) {
-    this.x = x;
-  }
-
-  public void setY(int y) {
-    this.y = y;
-  }
-
   public int getActualX() {
     return actualX;
   }
@@ -51,20 +50,24 @@ public abstract class Actor {
     return actualY;
   }
 
-  public void setActualX(int x) {
-    this.actualX = x;
-  }
-
-  public void setActualY(int y) {
-    this.actualY = y;
+  public void move(int x, int y) {
+    goalX = x * GRID;
+    goalY = y * GRID;
   }
 
   public boolean updateAnimation(float dt) {
-    int goalX = x * GRID;
-    int goalY = y * GRID;
-    if (goalX == actualX && goalY == actualY)
-      return false;
-    int change = (int) Math.floor(dt * ANIMATION_SPEED);
+    if (goalX == actualX && goalY == actualY) {
+      if (bumping) {
+        bumping = false;
+        goalX = x * GRID;
+        goalY = y * GRID;
+      } else {
+        x = goalX / GRID;
+        y = goalY / GRID;
+        return false;
+      }
+    }
+    int change = (int) (dt * ANIMATION_SPEED);
     if (actualX < goalX) {
       actualX += change;
       if (actualX > goalX)
@@ -101,5 +104,13 @@ public abstract class Actor {
   public boolean gainEnergy() {
     energy += speed;
     return canTakeTurn();
+  }
+
+  public void bump(int dx, int dy, float ratio) {
+    if (!bumping) {
+      bumping = true;
+      goalX = (int) (actualX + dx * GRID * ratio);
+      goalY = (int) (actualY + dy * GRID * ratio);
+    }
   }
 }

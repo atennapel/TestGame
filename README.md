@@ -7,7 +7,7 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Doors
 - [x] Logs
 - [x] Sliding animation
-- [ ] Bump animation
+- [x] Bump animation
 - [ ] Sounds
 - [ ] Fix double inputs
 - [ ] Pathfinding for the monster

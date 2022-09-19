@@ -52,7 +52,6 @@ public class TestGame extends ApplicationAdapter {
   private int frame = 0;
   private int turn = 0;
   private int playerTurn = 0;
-  private float cooldown = 0;
   private List<String> logs = new ArrayList<>();
   private boolean updatingAnimations = false;
 
@@ -137,10 +136,6 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private void processTurn() {
-    // cooldown += Gdx.graphics.getDeltaTime();
-    // if (cooldown < MAX_COOLDOWN)
-    // return;
-    // cooldown -= MAX_COOLDOWN;
     if (updatingAnimations)
       return;
 

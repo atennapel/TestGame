@@ -6,6 +6,7 @@ import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.Tile;
 import com.atennapel.testgame.actors.Actor;
 import com.atennapel.testgame.Map;
+import com.atennapel.testgame.Constants;
 
 public class Move implements Action {
   private final int dx;
@@ -37,14 +38,14 @@ public class Move implements Action {
       if (waitOnBlocked) {
         return ActionResult.alternateAction(new Wait());
       } else {
+        actor.bump(dx, dy, Constants.BUMPING_RATIO);
         game.addLog(actor + " bumps in to the wall.");
         return ActionResult.failure();
       }
     }
     Optional<Actor> blockingActor = game.actorAt(x, y);
     if (blockingActor.isEmpty()) {
-      actor.setX(x);
-      actor.setY(y);
+      actor.move(x, y);
       return ActionResult.success();
     } else {
       return ActionResult.alternateAction(new Wait());
