@@ -3,6 +3,7 @@ package com.atennapel.testgame;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -36,6 +37,9 @@ public class TestGame extends ApplicationAdapter {
   private TextureRegion doorClosedRegion;
   private TextureRegion doorOpenRegion;
   private BitmapFont font;
+  private Sound bumpSound;
+  private Sound doorOpenSound;
+  private Sound doorCloseSound;
 
   private InputMode inputMode = InputMode.NORMAL;
 
@@ -68,6 +72,9 @@ public class TestGame extends ApplicationAdapter {
     doorClosedRegion = new TextureRegion(region, 16, 16, 16, 16);
     doorOpenRegion = new TextureRegion(region, 32, 16, 16, 16);
     font = new BitmapFont();
+    bumpSound = Gdx.audio.newSound(Gdx.files.internal("bump.wav"));
+    doorOpenSound = Gdx.audio.newSound(Gdx.files.internal("door_open.wav"));
+    doorCloseSound = Gdx.audio.newSound(Gdx.files.internal("door_close.wav"));
 
     random = new Random();
 
@@ -181,7 +188,7 @@ public class TestGame extends ApplicationAdapter {
     // map
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT; y++) {
-        Tile tile = map.get(x, y);
+        Tiles tile = map.get(x, y);
         switch (tile) {
           case WALL:
             batch.setColor(156 / 255f, 178 / 255f, 112 / 255f, 1);
@@ -269,5 +276,19 @@ public class TestGame extends ApplicationAdapter {
   public void addLog(String msg) {
     LocalDateTime date = LocalDateTime.now();
     logs.add(date.format(formatter) + " - " + msg);
+  }
+
+  public void playSound(Sounds sound) {
+    switch (sound) {
+      case BUMP:
+        bumpSound.play();
+        break;
+      case DOOR_OPEN:
+        doorOpenSound.play();
+        break;
+      case DOOR_CLOSE:
+        doorCloseSound.play();
+        break;
+    }
   }
 }

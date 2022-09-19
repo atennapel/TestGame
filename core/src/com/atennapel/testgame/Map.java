@@ -1,13 +1,13 @@
 package com.atennapel.testgame;
 
 import static com.atennapel.testgame.Constants.*;
-import static com.atennapel.testgame.Tile.*;
+import static com.atennapel.testgame.Tiles.*;
 
 public class Map {
-  private Tile[][] map;
+  private Tiles[][] map;
 
   public Map() {
-    map = new Tile[WIDTH][HEIGHT];
+    map = new Tiles[WIDTH][HEIGHT];
 
     // floor
     for (int x = 0; x < WIDTH; x++) {
@@ -38,19 +38,19 @@ public class Map {
   }
 
   public boolean isBlocked(int x, int y) {
-    Tile t = map[x][y];
+    Tiles t = map[x][y];
     return t == WALL || t == DOOR_CLOSED;
   }
 
-  public Tile get(int x, int y) {
+  public Tiles get(int x, int y) {
     return map[x][y];
   }
 
-  public void set(int x, int y, Tile t) {
+  public void set(int x, int y, Tiles t) {
     map[x][y] = t;
   }
 
-  public boolean is(int x, int y, Tile t) {
+  public boolean is(int x, int y, Tiles t) {
     return map[x][y] == t;
   }
 }

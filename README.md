@@ -8,7 +8,8 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Logs
 - [x] Sliding animation
 - [x] Bump animation
-- [ ] Sounds
+- [x] Sounds
+- [ ] Attacking
 - [ ] Fix double inputs
 - [ ] Pathfinding for the monster
 - [ ] Connect certain sprites/tiles and colors to actors and tiles

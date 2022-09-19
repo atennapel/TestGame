@@ -3,9 +3,10 @@ package com.atennapel.testgame.actions;
 import java.util.Optional;
 
 import com.atennapel.testgame.TestGame;
-import com.atennapel.testgame.Tile;
+import com.atennapel.testgame.Tiles;
 import com.atennapel.testgame.actors.Actor;
 import com.atennapel.testgame.Map;
+import com.atennapel.testgame.Sounds;
 import com.atennapel.testgame.Constants;
 
 public class Move implements Action {
@@ -32,7 +33,7 @@ public class Move implements Action {
     int x = actor.getX() + dx;
     int y = actor.getY() + dy;
     Map map = game.getMap();
-    if (canOpenDoors && map.is(x, y, Tile.DOOR_CLOSED))
+    if (canOpenDoors && map.is(x, y, Tiles.DOOR_CLOSED))
       return ActionResult.alternateAction(new OpenDoor(x, y));
     if (map.isBlocked(x, y)) {
       if (waitOnBlocked) {
@@ -40,6 +41,7 @@ public class Move implements Action {
       } else {
         actor.bump(dx, dy, Constants.BUMPING_RATIO);
         game.addLog(actor + " bumps in to the wall.");
+        game.playSound(Sounds.BUMP);
         return ActionResult.failure();
       }
     }

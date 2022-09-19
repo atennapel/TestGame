@@ -1,6 +1,6 @@
 package com.atennapel.testgame;
 
-public enum Tile {
+public enum Tiles {
   EMPTY,
   WALL,
   DOOR_CLOSED,
