@@ -10,8 +10,8 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Bump animation
 - [x] Sounds
 - [x] Attacking
+- [x] Pathfinding
 - [ ] Fix double inputs
-- [ ] Pathfinding for the monster
 - [ ] Field of view
 - [ ] Connect certain sprites/tiles/sounds/colors to actors and tiles
 

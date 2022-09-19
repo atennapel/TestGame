@@ -47,6 +47,7 @@ public class TestGame extends ApplicationAdapter {
   private Random random;
 
   private Map map;
+  private Pathfinding pathfinding;
 
   private Player player;
   private Monster monster;
@@ -86,6 +87,7 @@ public class TestGame extends ApplicationAdapter {
     actors.add(monster);
 
     map = new Map();
+    pathfinding = new Pathfinding(map);
   }
 
   private void handleInput() {
@@ -252,6 +254,10 @@ public class TestGame extends ApplicationAdapter {
 
   public Map getMap() {
     return map;
+  }
+
+  public Pathfinding getPathfinding() {
+    return pathfinding;
   }
 
   public Random getRandom() {
