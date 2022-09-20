@@ -215,6 +215,11 @@ public class TestGame extends ApplicationAdapter {
     // map
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT - 2; y++) {
+        if (!map.isExplored(x, y)) {
+          batch.setColor(Color.BLACK);
+          batch.draw(emptyRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+          continue;
+        }
         boolean visible = map.isVisible(x, y);
         Tiles tile = map.get(x, y);
         switch (tile) {

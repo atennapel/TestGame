@@ -6,16 +6,19 @@ import static com.atennapel.testgame.Tiles.*;
 public class Map {
   private Tiles[][] map;
   private boolean[][] visible;
+  private boolean[][] explored;
 
   public Map() {
     map = new Tiles[WIDTH][HEIGHT];
     visible = new boolean[WIDTH][HEIGHT];
+    explored = new boolean[WIDTH][HEIGHT];
 
     // floor
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT; y++) {
         map[x][y] = EMPTY;
         visible[x][y] = false;
+        explored[x][y] = false;
       }
     }
 
@@ -61,7 +64,17 @@ public class Map {
     return visible[x][y];
   }
 
+  public boolean isExplored(int x, int y) {
+    return explored[x][y];
+  }
+
   public void setVisible(int x, int y, boolean isVisible) {
     visible[x][y] = isVisible;
+    if (isVisible)
+      explored[x][y] = true;
+  }
+
+  public void setExplored(int x, int y, boolean isExplored) {
+    explored[x][y] = isExplored;
   }
 }
