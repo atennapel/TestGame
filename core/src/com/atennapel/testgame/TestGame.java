@@ -37,6 +37,7 @@ public class TestGame extends ApplicationAdapter {
   private TextureRegion wallRegion;
   private TextureRegion doorClosedRegion;
   private TextureRegion doorOpenRegion;
+  private TextureRegion emptyRegion;
   private BitmapFont font;
   private Sound bumpSound;
   private Sound doorOpenSound;
@@ -48,6 +49,7 @@ public class TestGame extends ApplicationAdapter {
   private Random random;
 
   private Map map;
+  private ShadowCasting shadowCasting;
   private Pathfinding pathfinding;
 
   private Player player;
@@ -74,6 +76,8 @@ public class TestGame extends ApplicationAdapter {
     wallRegion = new TextureRegion(region, 0, 16, 16, 16);
     doorClosedRegion = new TextureRegion(region, 16, 16, 16, 16);
     doorOpenRegion = new TextureRegion(region, 32, 16, 16, 16);
+    emptyRegion = new TextureRegion(region, 0, 32, 16, 16);
+
     font = new BitmapFont();
     bumpSound = Gdx.audio.newSound(Gdx.files.internal("bump.wav"));
     doorOpenSound = Gdx.audio.newSound(Gdx.files.internal("door_open.wav"));
@@ -88,6 +92,7 @@ public class TestGame extends ApplicationAdapter {
     actors.add(monster);
 
     map = new Map();
+    shadowCasting = new ShadowCasting(map);
     pathfinding = new Pathfinding(map);
 
     player.getInventory().add("gold", 10);
@@ -104,8 +109,10 @@ public class TestGame extends ApplicationAdapter {
           sb.append(e.getValue() + " " + e.getKey() + ", ");
         }
       }
-      if (nonEmpty) sb.delete(sb.length() - 2, sb.length());
-      else sb.append("nothing");
+      if (nonEmpty)
+        sb.delete(sb.length() - 2, sb.length());
+      else
+        sb.append("nothing");
       sb.append(".");
       addLog(sb.toString());
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
@@ -207,29 +214,47 @@ public class TestGame extends ApplicationAdapter {
 
     // map
     for (int x = 0; x < WIDTH; x++) {
-      for (int y = 0; y < HEIGHT; y++) {
+      for (int y = 0; y < HEIGHT - 2; y++) {
+        boolean visible = map.isVisible(x, y);
         Tiles tile = map.get(x, y);
         switch (tile) {
+          case EMPTY:
+            if (visible)
+              batch.setColor(96 / 255f, 62 / 255f, 52 / 255f, 1);
+            else
+              batch.setColor(66 / 255f, 32 / 255f, 22 / 255f, 1);
+            batch.draw(emptyRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+            break;
           case WALL:
-            batch.setColor(156 / 255f, 178 / 255f, 112 / 255f, 1);
+            if (visible)
+              batch.setColor(156 / 255f, 178 / 255f, 112 / 255f, 1);
+            else
+              batch.setColor(Color.BLACK);
             batch.draw(wallRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
             break;
           case DOOR_CLOSED:
-            batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+            if (visible)
+              batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+            else
+              batch.setColor(Color.BLACK);
             batch.draw(doorClosedRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
             break;
           case DOOR_OPEN:
-            batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+            if (visible)
+              batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+            else
+              batch.setColor(Color.BLACK);
             batch.draw(doorOpenRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
             break;
-          default:
         }
       }
     }
 
     // actors
-    batch.setColor(154 / 255f, 64 / 255f, 55 / 255f, 1);
-    batch.draw(monsterRegion, monster.getActualX(), HEIGHT * GRID - monster.getActualY() - GRID, GRID, GRID);
+    if (map.isVisible(monster.getX(), monster.getY())) {
+      batch.setColor(154 / 255f, 64 / 255f, 55 / 255f, 1);
+      batch.draw(monsterRegion, monster.getActualX(), HEIGHT * GRID - monster.getActualY() - GRID, GRID, GRID);
+    }
     batch.setColor(81 / 255f, 143 / 255f, 77 / 255f, 1);
     batch.draw(playerRegion, player.getActualX(), HEIGHT * GRID - player.getActualY() - GRID, GRID, GRID);
 
@@ -258,6 +283,7 @@ public class TestGame extends ApplicationAdapter {
     handleInput();
     processTurn();
     updateAnimations();
+    shadowCasting.refreshVisibility(player.getX(), player.getY());
     draw();
   }
 
@@ -274,6 +300,10 @@ public class TestGame extends ApplicationAdapter {
 
   public Pathfinding getPathfinding() {
     return pathfinding;
+  }
+
+  public ShadowCasting getShadowCasting() {
+    return shadowCasting;
   }
 
   public Random getRandom() {

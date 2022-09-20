@@ -5,14 +5,17 @@ import static com.atennapel.testgame.Tiles.*;
 
 public class Map {
   private Tiles[][] map;
+  private boolean[][] visible;
 
   public Map() {
     map = new Tiles[WIDTH][HEIGHT];
+    visible = new boolean[WIDTH][HEIGHT];
 
     // floor
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT; y++) {
         map[x][y] = EMPTY;
+        visible[x][y] = false;
       }
     }
 
@@ -52,5 +55,13 @@ public class Map {
 
   public boolean is(int x, int y, Tiles t) {
     return map[x][y] == t;
+  }
+
+  public boolean isVisible(int x, int y) {
+    return visible[x][y];
+  }
+
+  public void setVisible(int x, int y, boolean isVisible) {
+    visible[x][y] = isVisible;
   }
 }

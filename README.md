@@ -11,8 +11,9 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Sounds
 - [x] Attacking
 - [x] Pathfinding
+- [x] Field of view
+- [ ] Exploring map
 - [ ] Fix double inputs
-- [ ] Field of view
 - [ ] Connect certain sprites/tiles/sounds/colors to actors and tiles
 
 ## Questions
