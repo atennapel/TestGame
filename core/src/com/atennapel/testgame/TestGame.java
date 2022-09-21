@@ -38,6 +38,7 @@ public class TestGame extends ApplicationAdapter {
   private TextureRegion doorClosedRegion;
   private TextureRegion doorOpenRegion;
   private TextureRegion emptyRegion;
+  private TextureRegion dotRegion;
   private BitmapFont font;
   private Sound bumpSound;
   private Sound doorOpenSound;
@@ -77,6 +78,7 @@ public class TestGame extends ApplicationAdapter {
     doorClosedRegion = new TextureRegion(region, 16, 16, 16, 16);
     doorOpenRegion = new TextureRegion(region, 32, 16, 16, 16);
     emptyRegion = new TextureRegion(region, 0, 32, 16, 16);
+    dotRegion = new TextureRegion(region, 16, 32, 16, 16);
 
     font = new BitmapFont();
     bumpSound = Gdx.audio.newSound(Gdx.files.internal("bump.wav"));
@@ -207,6 +209,10 @@ public class TestGame extends ApplicationAdapter {
     }
   }
 
+  private void refreshVisibility() {
+    shadowCasting.refreshVisibility(player.getX(), player.getY());
+  }
+
   private void draw() {
     ScreenUtils.clear(96 / 255f, 62 / 255f, 52 / 255f, 1);
 
@@ -216,7 +222,7 @@ public class TestGame extends ApplicationAdapter {
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT - 2; y++) {
         if (!map.isExplored(x, y)) {
-          batch.setColor(Color.BLACK);
+          batch.setColor(66 / 255f, 32 / 255f, 22 / 255f, 1);
           batch.draw(emptyRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
           continue;
         }
@@ -225,10 +231,10 @@ public class TestGame extends ApplicationAdapter {
         switch (tile) {
           case EMPTY:
             if (visible)
-              batch.setColor(96 / 255f, 62 / 255f, 52 / 255f, 1);
+              batch.setColor(126 / 255f, 92 / 255f, 82 / 255f, 1);
             else
               batch.setColor(66 / 255f, 32 / 255f, 22 / 255f, 1);
-            batch.draw(emptyRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+            batch.draw(dotRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
             break;
           case WALL:
             if (visible)
@@ -288,7 +294,7 @@ public class TestGame extends ApplicationAdapter {
     handleInput();
     processTurn();
     updateAnimations();
-    shadowCasting.refreshVisibility(player.getX(), player.getY());
+    refreshVisibility();
     draw();
   }
 
