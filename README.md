@@ -13,7 +13,6 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Pathfinding
 - [x] Field of view
 - [x] Exploring map
-- [ ] Fix double inputs
 - [ ] Connect certain sprites/tiles/sounds/colors to actors and tiles
 
 ## Questions

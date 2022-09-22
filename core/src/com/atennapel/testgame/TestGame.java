@@ -101,7 +101,8 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private void handleInput() {
-    // if (updatingAnimations) return;
+    if (updatingAnimations)
+      return;
     if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
       StringBuilder sb = new StringBuilder("You have: ");
       boolean nonEmpty = false;
@@ -213,6 +214,30 @@ public class TestGame extends ApplicationAdapter {
     shadowCasting.refreshVisibility(player.getX(), player.getY());
   }
 
+  private void draw(TextureRegion region, int x, int y) {
+    batch.draw(region, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+  }
+
+  private void draw(TextureRegion region, int x, int y, int r, int g, int b) {
+    batch.setColor(r / 255f, g / 255f, b / 255f, 1);
+    draw(region, x, y);
+  }
+
+  private void draw(Actor actor) {
+    TextureRegion region = null;
+    if (actor instanceof Player)
+      region = playerRegion;
+    else if (actor instanceof Monster)
+      region = monsterRegion;
+    if (region != null)
+      batch.draw(region, actor.getActualX(), HEIGHT * GRID - actor.getActualY() - GRID, GRID, GRID);
+  }
+
+  private void draw(Actor actor, int r, int g, int b) {
+    batch.setColor(r / 255f, g / 255f, b / 255f, 1);
+    draw(actor);
+  }
+
   private void draw() {
     ScreenUtils.clear(96 / 255f, 62 / 255f, 52 / 255f, 1);
 
@@ -222,52 +247,46 @@ public class TestGame extends ApplicationAdapter {
     for (int x = 0; x < WIDTH; x++) {
       for (int y = 0; y < HEIGHT - 2; y++) {
         if (!map.isExplored(x, y)) {
-          batch.setColor(66 / 255f, 32 / 255f, 22 / 255f, 1);
-          batch.draw(emptyRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+          draw(emptyRegion, x, y, 66, 32, 22);
           continue;
         }
         boolean visible = map.isVisible(x, y);
+        if (!visible)
+          draw(emptyRegion, x, y, 86, 52, 42);
         Tiles tile = map.get(x, y);
         switch (tile) {
           case EMPTY:
             if (visible)
-              batch.setColor(126 / 255f, 92 / 255f, 82 / 255f, 1);
+              draw(dotRegion, x, y, 126, 92, 82);
             else
-              batch.setColor(66 / 255f, 32 / 255f, 22 / 255f, 1);
-            batch.draw(dotRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+              draw(dotRegion, x, y, 96, 62, 52);
             break;
           case WALL:
             if (visible)
-              batch.setColor(156 / 255f, 178 / 255f, 112 / 255f, 1);
+              draw(wallRegion, x, y, 156, 178, 112);
             else
-              batch.setColor(Color.BLACK);
-            batch.draw(wallRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+              draw(wallRegion, x, y, 76, 42, 32);
             break;
           case DOOR_CLOSED:
             if (visible)
-              batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+              draw(doorClosedRegion, x, y, 123, 92, 66);
             else
-              batch.setColor(Color.BLACK);
-            batch.draw(doorClosedRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+              draw(doorClosedRegion, x, y, 93, 62, 36);
             break;
           case DOOR_OPEN:
             if (visible)
-              batch.setColor(123 / 255f, 92 / 255f, 66 / 255f, 1);
+              draw(doorOpenRegion, x, y, 123, 92, 66);
             else
-              batch.setColor(Color.BLACK);
-            batch.draw(doorOpenRegion, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+              draw(doorOpenRegion, x, y, 93, 62, 36);
             break;
         }
       }
     }
 
     // actors
-    if (map.isVisible(monster.getX(), monster.getY())) {
-      batch.setColor(154 / 255f, 64 / 255f, 55 / 255f, 1);
-      batch.draw(monsterRegion, monster.getActualX(), HEIGHT * GRID - monster.getActualY() - GRID, GRID, GRID);
-    }
-    batch.setColor(81 / 255f, 143 / 255f, 77 / 255f, 1);
-    batch.draw(playerRegion, player.getActualX(), HEIGHT * GRID - player.getActualY() - GRID, GRID, GRID);
+    if (map.isVisible(monster.getX(), monster.getY()))
+      draw(monster, 154, 64, 55);
+    draw(player, 81, 143, 77);
 
     // debug text
     font.setColor(Color.WHITE);
