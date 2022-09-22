@@ -3,6 +3,8 @@ package com.atennapel.testgame.actors;
 import java.util.Optional;
 
 import static com.atennapel.testgame.Constants.*;
+
+import com.atennapel.testgame.RGB;
 import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.actions.Action;
 
@@ -35,6 +37,10 @@ public abstract class Actor {
   }
 
   public abstract Optional<Action> getAction(TestGame game);
+
+  public abstract int getTile();
+
+  public abstract RGB getColor();
 
   public int getX() {
     return x;

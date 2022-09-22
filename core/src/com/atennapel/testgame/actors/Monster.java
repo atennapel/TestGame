@@ -3,6 +3,7 @@ package com.atennapel.testgame.actors;
 import java.util.Optional;
 
 import com.atennapel.testgame.Pos;
+import com.atennapel.testgame.RGB;
 import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.actions.Action;
 import com.atennapel.testgame.actions.Move;
@@ -41,6 +42,16 @@ public class Monster extends Actor {
         dy = -1;
       return Optional.<Action>of(new Move(dx, dy));
     }
+  }
+
+  @Override
+  public int getTile() {
+    return 1;
+  }
+
+  @Override
+  public RGB getColor() {
+    return new RGB(154, 64, 55);
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.atennapel.testgame.actors;
 
 import java.util.Optional;
 
+import com.atennapel.testgame.RGB;
 import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.actions.Action;
 
@@ -28,6 +29,16 @@ public class Player extends Actor {
     Optional<Action> nextAction = action;
     action = Optional.empty();
     return nextAction;
+  }
+
+  @Override
+  public int getTile() {
+    return 0;
+  }
+
+  @Override
+  public RGB getColor() {
+    return new RGB(81, 143, 77);
   }
 
   @Override

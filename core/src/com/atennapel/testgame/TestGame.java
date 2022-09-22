@@ -7,9 +7,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.time.LocalDateTime;
@@ -31,14 +28,7 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private SpriteBatch batch;
-  private TextureAtlas atlas;
-  private TextureRegion playerRegion;
-  private TextureRegion monsterRegion;
-  private TextureRegion wallRegion;
-  private TextureRegion doorClosedRegion;
-  private TextureRegion doorOpenRegion;
-  private TextureRegion emptyRegion;
-  private TextureRegion dotRegion;
+  private Sheet sheet;
   private BitmapFont font;
   private Sound bumpSound;
   private Sound doorOpenSound;
@@ -70,15 +60,7 @@ public class TestGame extends ApplicationAdapter {
   @Override
   public void create() {
     batch = new SpriteBatch();
-    atlas = new TextureAtlas("sheet.atlas");
-    AtlasRegion region = atlas.findRegion("sheet");
-    playerRegion = new TextureRegion(region, 0, 0, 16, 16);
-    monsterRegion = new TextureRegion(region, 16, 0, 16, 16);
-    wallRegion = new TextureRegion(region, 0, 16, 16, 16);
-    doorClosedRegion = new TextureRegion(region, 16, 16, 16, 16);
-    doorOpenRegion = new TextureRegion(region, 32, 16, 16, 16);
-    emptyRegion = new TextureRegion(region, 0, 32, 16, 16);
-    dotRegion = new TextureRegion(region, 16, 32, 16, 16);
+    sheet = Sheet.create(SHEET_FILENAME, SHEET_REGION, SHEET_GRID, SHEET_GRID);
 
     font = new BitmapFont();
     bumpSound = Gdx.audio.newSound(Gdx.files.internal("bump.wav"));
@@ -214,28 +196,24 @@ public class TestGame extends ApplicationAdapter {
     shadowCasting.refreshVisibility(player.getX(), player.getY());
   }
 
-  private void draw(TextureRegion region, int x, int y) {
-    batch.draw(region, x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+  private void setColor(int r, int g, int b) {
+    batch.setColor(r / 255f, g / 255f, b / 255f, 1);
   }
 
-  private void draw(TextureRegion region, int x, int y, int r, int g, int b) {
-    batch.setColor(r / 255f, g / 255f, b / 255f, 1);
-    draw(region, x, y);
+  private void draw(Tiles tile, int x, int y) {
+    batch.draw(sheet.getRegion(tile.getTile()), x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
+  }
+
+  private void clear(int x, int y, int r, int g, int b) {
+    setColor(r, g, b);
+    batch.draw(sheet.getEmptyRegion(), x * GRID, (HEIGHT - 1 - y) * GRID, GRID, GRID);
   }
 
   private void draw(Actor actor) {
-    TextureRegion region = null;
-    if (actor instanceof Player)
-      region = playerRegion;
-    else if (actor instanceof Monster)
-      region = monsterRegion;
-    if (region != null)
-      batch.draw(region, actor.getActualX(), HEIGHT * GRID - actor.getActualY() - GRID, GRID, GRID);
-  }
-
-  private void draw(Actor actor, int r, int g, int b) {
-    batch.setColor(r / 255f, g / 255f, b / 255f, 1);
-    draw(actor);
+    RGB color = actor.getColor();
+    setColor(color.r, color.g, color.b);
+    batch.draw(sheet.getRegion(actor.getTile()), actor.getActualX(), HEIGHT * GRID - actor.getActualY() - GRID, GRID,
+        GRID);
   }
 
   private void draw() {
@@ -245,48 +223,53 @@ public class TestGame extends ApplicationAdapter {
 
     // map
     for (int x = 0; x < WIDTH; x++) {
-      for (int y = 0; y < HEIGHT - 2; y++) {
+      for (int y = 0; y < HEIGHT; y++) {
+        if (y >= HEIGHT - 2) {
+          clear(x, y, 0, 0, 0);
+          continue;
+        }
         if (!map.isExplored(x, y)) {
-          draw(emptyRegion, x, y, 66, 32, 22);
+          clear(x, y, 66, 32, 22);
           continue;
         }
         boolean visible = map.isVisible(x, y);
         if (!visible)
-          draw(emptyRegion, x, y, 86, 52, 42);
+          clear(x, y, 86, 52, 42);
         Tiles tile = map.get(x, y);
         switch (tile) {
           case EMPTY:
             if (visible)
-              draw(dotRegion, x, y, 126, 92, 82);
+              setColor(126, 92, 82);
             else
-              draw(dotRegion, x, y, 96, 62, 52);
+              setColor(96, 62, 52);
             break;
           case WALL:
             if (visible)
-              draw(wallRegion, x, y, 156, 178, 112);
+              setColor(156, 178, 112);
             else
-              draw(wallRegion, x, y, 76, 42, 32);
+              setColor(76, 42, 32);
             break;
           case DOOR_CLOSED:
             if (visible)
-              draw(doorClosedRegion, x, y, 123, 92, 66);
+              setColor(123, 92, 66);
             else
-              draw(doorClosedRegion, x, y, 93, 62, 36);
+              setColor(93, 62, 36);
             break;
           case DOOR_OPEN:
             if (visible)
-              draw(doorOpenRegion, x, y, 123, 92, 66);
+              setColor(123, 92, 66);
             else
-              draw(doorOpenRegion, x, y, 93, 62, 36);
+              setColor(93, 62, 36);
             break;
         }
+        draw(tile, x, y);
       }
     }
 
     // actors
     if (map.isVisible(monster.getX(), monster.getY()))
-      draw(monster, 154, 64, 55);
-    draw(player, 81, 143, 77);
+      draw(monster);
+    draw(player);
 
     // debug text
     font.setColor(Color.WHITE);
@@ -320,7 +303,7 @@ public class TestGame extends ApplicationAdapter {
   @Override
   public void dispose() {
     batch.dispose();
-    atlas.dispose();
+    sheet.dispose();
     font.dispose();
   }
 
