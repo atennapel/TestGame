@@ -15,6 +15,10 @@ public class Inventory {
     entries.put(item, currentCount + count);
   }
 
+  public int size() {
+    return entries.size();
+  }
+
   public void add(String item) {
     add(item, 1);
   }

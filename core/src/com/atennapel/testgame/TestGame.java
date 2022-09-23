@@ -23,8 +23,11 @@ import static com.atennapel.testgame.Constants.*;
 
 public class TestGame extends ApplicationAdapter {
   private static enum InputMode {
-    NORMAL,
-    DOOR
+    NORMAL, DOOR
+  }
+
+  private static enum ScreenMode {
+    GAME, INVENTORY
   }
 
   private SpriteBatch batch;
@@ -36,6 +39,8 @@ public class TestGame extends ApplicationAdapter {
   private Sound hitSound;
 
   private InputMode inputMode = InputMode.NORMAL;
+  private ScreenMode screenMode = ScreenMode.GAME;
+  private int inventoryPointer = 0;
 
   private Random random;
 
@@ -80,62 +85,85 @@ public class TestGame extends ApplicationAdapter {
     pathfinding = new Pathfinding(map);
 
     player.getInventory().add("gold", 10);
+    player.getInventory().add("sword of fire", 1);
+    player.getInventory().add("scroll of ennui", 2);
+    player.getInventory().add("water bottle", 3);
+    player.getInventory().add("water bottle", 3);
+    player.getInventory().add("a", 3);
+    player.getInventory().add("b", 3);
+    player.getInventory().add("c", 3);
+    player.getInventory().add("d", 3);
+    player.getInventory().add("e", 3);
+    player.getInventory().add("f", 3);
+    player.getInventory().add("g", 3);
+    player.getInventory().add("h", 3);
+    player.getInventory().add("i", 3);
+    player.getInventory().add("j", 3);
+    player.getInventory().add("k", 3);
+    player.getInventory().add("l", 3);
   }
 
   private void handleInput() {
     if (updatingAnimations)
       return;
     if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-      StringBuilder sb = new StringBuilder("You have: ");
-      boolean nonEmpty = false;
-      for (Entry<String, Integer> e : player.getInventory().entries.entrySet()) {
-        if (e.getValue() > 0) {
-          nonEmpty = true;
-          sb.append(e.getValue() + " " + e.getKey() + ", ");
-        }
+      if (screenMode == ScreenMode.GAME)
+        screenMode = ScreenMode.INVENTORY;
+      else if (screenMode == ScreenMode.INVENTORY)
+        screenMode = ScreenMode.GAME;
+      return;
+    }
+    if (screenMode == ScreenMode.INVENTORY) {
+      if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_8)
+          || Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+        inventoryPointer--;
+        if (inventoryPointer < 0)
+          inventoryPointer = player.getInventory().size() - 1;
       }
-      if (nonEmpty)
-        sb.delete(sb.length() - 2, sb.length());
-      else
-        sb.append("nothing");
-      sb.append(".");
-      addLog(sb.toString());
-    } else if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+      if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)
+          || Gdx.input.isKeyJustPressed(Input.Keys.PERIOD)) {
+        inventoryPointer++;
+        if (inventoryPointer >= player.getInventory().size())
+          inventoryPointer = 0;
+      }
+      return;
+    }
+    if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
       inputMode = InputMode.DOOR;
       addLog("Pick a direction to use a door.");
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5) || Gdx.input.isKeyJustPressed(Input.Keys.L))
       player.setNextAction(new Wait());
     else {
       int dx = 0, dy = 0;
-      if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_8)
-          || Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_8)
+          || Gdx.input.isKeyPressed(Input.Keys.O)) {
         dy = -1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)
-          || Gdx.input.isKeyJustPressed(Input.Keys.PERIOD)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_2)
+          || Gdx.input.isKeyPressed(Input.Keys.PERIOD)) {
         dy = 1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)
-          || Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_4)
+          || Gdx.input.isKeyPressed(Input.Keys.K)) {
         dx = -1;
       }
-      if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)
-          || Gdx.input.isKeyJustPressed(Input.Keys.SEMICOLON)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_6)
+          || Gdx.input.isKeyPressed(Input.Keys.SEMICOLON)) {
         dx = 1;
       }
-      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_7) || Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_7) || Gdx.input.isKeyPressed(Input.Keys.I)) {
         dx = -1;
         dy = -1;
       }
-      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_9) || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_9) || Gdx.input.isKeyPressed(Input.Keys.P)) {
         dx = 1;
         dy = -1;
       }
-      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1) || Gdx.input.isKeyJustPressed(Input.Keys.COMMA)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_1) || Gdx.input.isKeyPressed(Input.Keys.COMMA)) {
         dx = -1;
         dy = 1;
       }
-      if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3) || Gdx.input.isKeyJustPressed(Input.Keys.SLASH)) {
+      if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_3) || Gdx.input.isKeyPressed(Input.Keys.SLASH)) {
         dx = 1;
         dy = 1;
       }
@@ -286,6 +314,34 @@ public class TestGame extends ApplicationAdapter {
       logY -= 15;
       if (logY < 10)
         break;
+    }
+
+    // inventory
+    if (screenMode == ScreenMode.INVENTORY) {
+      for (int x = 3; x < WIDTH - 3; x++) {
+        for (int y = 3; y < HEIGHT - 3; y++) {
+          clear(x, y, 0, 0, 0);
+        }
+      }
+      font.setColor(Color.WHITE);
+      float invY = (HEIGHT - 4) * GRID;
+      boolean tooMuch = false;
+      int index = 0;
+      for (Entry<String, Integer> e : player.getInventory().entries.entrySet()) {
+        String item = e.getKey();
+        int count = e.getValue();
+        if (index == inventoryPointer)
+          font.draw(batch, ">", GRID * 4 - 13, invY);
+        font.draw(batch, count + " " + item, GRID * 4, invY);
+        invY -= 15;
+        index++;
+        if (invY < 4 * GRID) {
+          tooMuch = true;
+          break;
+        }
+      }
+      if (tooMuch)
+        font.draw(batch, "- more -", GRID * 4, 4 * GRID);
     }
 
     batch.end();
