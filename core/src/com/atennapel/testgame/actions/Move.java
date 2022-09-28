@@ -8,46 +8,37 @@ import com.atennapel.testgame.actors.Actor;
 import com.atennapel.testgame.Map;
 import com.atennapel.testgame.Sounds;
 import com.atennapel.testgame.Constants;
+import com.atennapel.testgame.Dir;
+import com.atennapel.testgame.Pos;
 
 public class Move implements Action {
-  private final int dx;
-  private final int dy;
-  private final boolean waitOnBlocked;
-  private final boolean canOpenDoors;
+  private final Dir dir;
 
-  public Move(int dx, int dy, boolean waitOnBlocked, boolean canOpenDoors) {
-    this.dx = dx;
-    this.dy = dy;
-    this.waitOnBlocked = waitOnBlocked;
-    this.canOpenDoors = canOpenDoors;
-  }
-
-  public Move(int dx, int dy) {
-    this(dx, dy, true, false);
+  public Move(Dir dir) {
+    this.dir = dir;
   }
 
   @Override
   public ActionResult perform(TestGame game, Actor actor) {
-    if (dx == 0 && dy == 0)
+    if (dir.noChange())
       return ActionResult.alternateAction(new Wait());
-    int x = actor.getX() + dx;
-    int y = actor.getY() + dy;
+    Pos pos = actor.getPos().add(dir);
     Map map = game.getMap();
-    if (canOpenDoors && map.is(x, y, Tiles.DOOR_CLOSED))
-      return ActionResult.alternateAction(new OpenDoor(x, y));
-    if (map.isBlocked(x, y)) {
-      if (waitOnBlocked) {
+    if (actor.canOpenDoors() && map.is(pos, Tiles.DOOR_CLOSED))
+      return ActionResult.alternateAction(new OpenDoor(pos));
+    if (map.isBlocked(pos)) {
+      if (actor.waitOnBlocked()) {
         return ActionResult.alternateAction(new Wait());
       } else {
-        actor.bump(dx, dy, Constants.BUMPING_RATIO);
-        game.addLog(actor + " bumps in to the wall.");
+        actor.bump(dir, Constants.BUMPING_RATIO);
+        game.addLog(actor + " bumps in to the wall");
         game.playSound(Sounds.BUMP);
         return ActionResult.failure();
       }
     }
-    Optional<Actor> blockingActor = game.actorAt(x, y);
+    Optional<Actor> blockingActor = game.actorAt(pos);
     if (blockingActor.isEmpty()) {
-      actor.move(x, y);
+      actor.move(dir);
       return ActionResult.success();
     } else {
       return ActionResult.alternateAction(new Attack(blockingActor.get()));
@@ -56,6 +47,6 @@ public class Move implements Action {
 
   @Override
   public String toString() {
-    return "Move(" + dx + ", " + dy + ")";
+    return "Move(" + dir + ")";
   }
 }

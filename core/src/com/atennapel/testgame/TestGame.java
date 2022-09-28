@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,23 @@ public class TestGame extends ApplicationAdapter {
 
   private static enum ScreenMode {
     GAME, INVENTORY
+  }
+
+  private static class LogLine {
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private final LocalDateTime date;
+    private final String msg;
+    private int count;
+
+    private LogLine(LocalDateTime date, String msg, int count) {
+      this.date = date;
+      this.msg = msg;
+      this.count = count;
+    }
+
+    public String format() {
+      return date.format(formatter) + " - " + msg + (count > 1 ? " (" + count + ")" : "");
+    }
   }
 
   private SpriteBatch batch;
@@ -52,15 +71,12 @@ public class TestGame extends ApplicationAdapter {
   private Monster monster;
 
   private List<Actor> actors = new ArrayList<>();
-  private int currentActor = 0;
 
   private int frame = 0;
   private int turn = 0;
   private int playerTurn = 0;
-  private List<String> logs = new ArrayList<>();
+  private List<LogLine> logs = new ArrayList<>();
   private boolean updatingAnimations = false;
-
-  private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
   @Override
   public void create() {
@@ -75,8 +91,8 @@ public class TestGame extends ApplicationAdapter {
 
     random = new Random();
 
-    player = new Player(3, 3);
-    monster = new Monster(7, 6);
+    player = new Player(new Pos(3, 3));
+    monster = new Monster(new Pos(7, 6));
     actors.add(player);
     actors.add(monster);
 
@@ -167,19 +183,16 @@ public class TestGame extends ApplicationAdapter {
         dx = 1;
         dy = 1;
       }
+      Dir dir = new Dir(dx, dy);
       if (dx != 0 || dy != 0) {
         if (inputMode == InputMode.NORMAL)
-          player.setNextAction(new Move(dx, dy, false, true));
+          player.setNextAction(new Move(dir));
         else if (inputMode == InputMode.DOOR) {
           inputMode = InputMode.NORMAL;
-          player.setNextAction(new UseDoor(player.getX() + dx, player.getY() + dy));
+          player.setNextAction(new UseDoor(player.getPos().add(dir)));
         }
       }
     }
-  }
-
-  private void advanceActor() {
-    currentActor = (currentActor + 1) % actors.size();
   }
 
   private void processTurn() {
@@ -188,27 +201,21 @@ public class TestGame extends ApplicationAdapter {
 
     frame++;
 
-    Actor actor = actors.get(currentActor);
-
-    if (actor.needsInput())
-      return;
-
-    if (actor.canTakeTurn() || actor.gainEnergy()) {
+    for (Actor actor : actors) {
+      if (!actor.canTakeTurn() && !actor.gainEnergy())
+        continue;
       Optional<Action> action = actor.getAction(this);
       if (action.isEmpty())
-        return;
+        continue;
       ActionResult result = action.get().perform(this, actor);
       while (result.getAlternateAction().isPresent())
         result = result.getAlternateAction().get().perform(this, actor);
       if (result.succeeded()) {
         actor.resetEnergy();
-        advanceActor();
         turn++;
         if (actor instanceof Player)
           playerTurn++;
       }
-    } else {
-      advanceActor();
     }
   }
 
@@ -221,7 +228,7 @@ public class TestGame extends ApplicationAdapter {
   }
 
   private void refreshVisibility() {
-    shadowCasting.refreshVisibility(player.getX(), player.getY());
+    shadowCasting.refreshVisibility(player.getPos());
   }
 
   private void setColor(int r, int g, int b) {
@@ -295,13 +302,14 @@ public class TestGame extends ApplicationAdapter {
     }
 
     // actors
-    if (map.isVisible(monster.getX(), monster.getY()))
+    if (map.isVisible(monster.getPos()))
       draw(monster);
     draw(player);
 
     // debug text
     font.setColor(Color.WHITE);
-    String debugMsg = "" + frame + ", (" + player.getX() + ", " + player.getY() + ")" + "(" + player.getActualX() + ", "
+    String debugMsg = "" + frame + ", (" + player.getPos().x + ", " + player.getPos().y + ")" + "("
+        + player.getActualX() + ", "
         + player.getActualY() + ")" + ", " + turn + ", " + playerTurn + ", " + player.getEnergy() + ", "
         + monster.getEnergy();
     font.draw(batch, debugMsg, 2 * GRID, (HEIGHT - 2) * GRID);
@@ -310,7 +318,7 @@ public class TestGame extends ApplicationAdapter {
     font.setColor(Color.WHITE);
     float logY = 2 * GRID - 5;
     for (int i = logs.size() - 1; i >= 0; i--) {
-      font.draw(batch, logs.get(i), 0, logY);
+      font.draw(batch, logs.get(i).format(), 0, logY);
       logY -= 15;
       if (logY < 10)
         break;
@@ -386,19 +394,36 @@ public class TestGame extends ApplicationAdapter {
   public Optional<Actor> actorAt(int x, int y) {
     for (int i = 0; i < actors.size(); i++) {
       Actor actor = actors.get(i);
-      if (actor.getX() == x && actor.getY() == y)
+      Pos pos = actor.getPos();
+      if (pos.x == x && pos.y == y)
         return Optional.of(actor);
     }
     return Optional.empty();
+  }
+
+  public Optional<Actor> actorAt(Pos pos) {
+    return actorAt(pos.x, pos.y);
   }
 
   public boolean anyActorAt(int x, int y) {
     return actorAt(x, y).isPresent();
   }
 
+  public boolean anyActorAt(Pos pos) {
+    return actorAt(pos).isPresent();
+  }
+
   public void addLog(String msg) {
     LocalDateTime date = LocalDateTime.now();
-    logs.add(date.format(formatter) + " - " + msg);
+    ZoneOffset offset = OffsetDateTime.now().getOffset();
+    if (!logs.isEmpty()) {
+      LogLine last = logs.get(logs.size() - 1);
+      if (last.msg.equals(msg) && last.date.toEpochSecond(offset) == date.toEpochSecond(offset)) {
+        last.count++;
+        return;
+      }
+    }
+    logs.add(new LogLine(date, msg, 1));
   }
 
   public void playSound(Sounds sound) {

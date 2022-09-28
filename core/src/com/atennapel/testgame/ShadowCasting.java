@@ -100,7 +100,9 @@ public class ShadowCasting {
     this.map = map;
   }
 
-  public void refreshVisibility(int x, int y) {
+  public void refreshVisibility(Pos pos) {
+    int x = pos.x;
+    int y = pos.y;
     for (int octant = 0; octant < 8; octant++)
       refreshOctant(x, y, octant);
     map.setVisible(x, y, true);

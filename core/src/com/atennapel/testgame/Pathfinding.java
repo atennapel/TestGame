@@ -1,6 +1,7 @@
 package com.atennapel.testgame;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,14 @@ public class Pathfinding {
       this.x = x;
       this.y = y;
       this.priority = priority;
+    }
+
+    private Pos toPos() {
+      return new Pos(x, y);
+    }
+
+    private Dir dir(Loc other) {
+      return toPos().dir(other.toPos());
     }
 
     @Override
@@ -77,13 +86,15 @@ public class Pathfinding {
     return 10;
   }
 
-  public Optional<Pos> findPath(int x, int y, int gx, int gy) {
+  public Optional<List<Dir>> findPath(Pos startPos, Pos goalPos) {
     HashMap<Loc, Loc> cameFrom = new HashMap<>();
     HashMap<Loc, Integer> costSoFar = new HashMap<>();
     PriorityQueue<Loc> frontier = new PriorityQueue<>();
 
+    int gx = goalPos.x;
+    int gy = goalPos.y;
     Loc goal = new Loc(gx, gy, 0);
-    Loc start = new Loc(x, y, 0);
+    Loc start = new Loc(startPos.x, startPos.y, 0);
     frontier.add(start);
     cameFrom.put(start, start);
     costSoFar.put(start, 0);
@@ -105,13 +116,27 @@ public class Pathfinding {
 
     if (cameFrom.get(goal) == null)
       return Optional.empty();
+    List<Dir> path = new ArrayList<>();
     Loc current = goal;
     while (!current.equals(start)) {
       Loc next = cameFrom.get(current);
-      if (next.equals(start))
-        return Optional.of(new Pos(current.x, current.y));
+      path.add(next.dir(current)); // in reverse!
+      if (next.equals(start)) {
+        Collections.reverse(path);
+        return Optional.of(path);
+      }
       current = next;
     }
     return Optional.empty();
+  }
+
+  public Optional<Dir> findDir(Pos startPos, Pos goalPos) {
+    Optional<List<Dir>> opath = findPath(startPos, goalPos);
+    if (opath.isEmpty())
+      return Optional.empty();
+    List<Dir> path = opath.get();
+    if (path.isEmpty())
+      return Optional.of(new Dir(0, 0));
+    return Optional.of(path.get(0));
   }
 }

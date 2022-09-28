@@ -3,19 +3,19 @@ package com.atennapel.testgame.actors;
 import java.util.Optional;
 
 import com.atennapel.testgame.RGB;
+import com.atennapel.testgame.Pos;
 import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.actions.Action;
 
 public class Player extends Actor {
   private Optional<Action> action = Optional.empty();
 
-  public Player(int x, int y) {
-    super(x, y);
+  public Player(Pos pos) {
+    super(pos);
     this.speed = 100;
   }
 
   public void setNextAction(Action action) {
-    System.out.println("setNextAction: " + action);
     this.action = Optional.ofNullable(action);
   }
 
@@ -39,6 +39,16 @@ public class Player extends Actor {
   @Override
   public RGB getColor() {
     return new RGB(81, 143, 77);
+  }
+
+  @Override
+  public boolean waitOnBlocked() {
+    return false;
+  }
+
+  @Override
+  public boolean canOpenDoors() {
+    return true;
   }
 
   @Override

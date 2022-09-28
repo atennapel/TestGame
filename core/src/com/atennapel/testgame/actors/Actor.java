@@ -5,12 +5,13 @@ import java.util.Optional;
 import static com.atennapel.testgame.Constants.*;
 
 import com.atennapel.testgame.RGB;
+import com.atennapel.testgame.Pos;
+import com.atennapel.testgame.Dir;
 import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.actions.Action;
 
 public abstract class Actor {
-  protected int x = 0;
-  protected int y = 0;
+  protected Pos pos = new Pos(0, 0);
   protected int energy = 0;
   protected int speed = 100;
   protected final Inventory inventory;
@@ -22,12 +23,11 @@ public abstract class Actor {
   protected int goalY = 0;
   protected boolean bumping = false;
 
-  protected Actor(int x, int y) {
+  protected Actor(Pos pos) {
     this.inventory = new Inventory();
-    this.x = x;
-    this.y = y;
-    actualX = x * GRID;
-    actualY = y * GRID;
+    this.pos = pos;
+    actualX = pos.x * GRID;
+    actualY = pos.y * GRID;
     goalX = actualX;
     goalY = actualY;
   }
@@ -42,12 +42,24 @@ public abstract class Actor {
 
   public abstract RGB getColor();
 
-  public int getX() {
-    return x;
+  public boolean waitOnBlocked() {
+    return true;
   }
 
-  public int getY() {
-    return y;
+  public boolean canOpenDoors() {
+    return false;
+  }
+
+  public Pos getPos() {
+    return pos;
+  }
+
+  public Dir dir(Pos other) {
+    return pos.dir(other);
+  }
+
+  public Dir dir(Actor other) {
+    return dir(other.getPos());
   }
 
   public int getActualX() {
@@ -67,15 +79,23 @@ public abstract class Actor {
     goalY = y * GRID;
   }
 
+  public void move(Pos pos) {
+    move(pos.x, pos.y);
+  }
+
+  public void move(Dir dir) {
+    move(pos.add(dir));
+  }
+
   public boolean updateAnimation(float dt) {
     if (goalX == actualX && goalY == actualY) {
       if (bumping) {
         bumping = false;
-        goalX = x * GRID;
-        goalY = y * GRID;
+        goalX = pos.x * GRID;
+        goalY = pos.y * GRID;
       } else {
-        x = goalX / GRID;
-        y = goalY / GRID;
+        pos.x = goalX / GRID;
+        pos.y = goalY / GRID;
         return false;
       }
     }
@@ -118,11 +138,11 @@ public abstract class Actor {
     return canTakeTurn();
   }
 
-  public void bump(int dx, int dy, float ratio) {
+  public void bump(Dir dir, float ratio) {
     if (!bumping) {
       bumping = true;
-      goalX = (int) (actualX + dx * GRID * ratio);
-      goalY = (int) (actualY + dy * GRID * ratio);
+      goalX = (int) (actualX + dir.dx * GRID * ratio);
+      goalY = (int) (actualY + dir.dy * GRID * ratio);
     }
   }
 }

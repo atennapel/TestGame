@@ -31,16 +31,6 @@ public class Map {
         map[WIDTH - 1][i] = WALL;
       }
     }
-    for (int i = 6; i < WIDTH - 6; i++) {
-      map[i][5] = WALL;
-      map[i][HEIGHT - 6] = WALL;
-      if (i > 5 && i < HEIGHT - 6) {
-        map[6][i] = WALL;
-        map[WIDTH - 7][i] = WALL;
-      }
-    }
-
-    map[6][7] = DOOR_CLOSED;
   }
 
   public boolean isBlocked(int x, int y) {
@@ -48,20 +38,40 @@ public class Map {
     return t == WALL || t == DOOR_CLOSED;
   }
 
+  public boolean isBlocked(Pos pos) {
+    return isBlocked(pos.x, pos.y);
+  }
+
   public Tiles get(int x, int y) {
     return map[x][y];
+  }
+
+  public Tiles get(Pos pos) {
+    return get(pos.x, pos.y);
   }
 
   public void set(int x, int y, Tiles t) {
     map[x][y] = t;
   }
 
+  public void set(Pos pos, Tiles t) {
+    set(pos.x, pos.y, t);
+  }
+
   public boolean is(int x, int y, Tiles t) {
     return map[x][y] == t;
   }
 
+  public boolean is(Pos pos, Tiles t) {
+    return is(pos.x, pos.y, t);
+  }
+
   public boolean isVisible(int x, int y) {
     return visible[x][y];
+  }
+
+  public boolean isVisible(Pos pos) {
+    return isVisible(pos.x, pos.y);
   }
 
   public boolean isExplored(int x, int y) {

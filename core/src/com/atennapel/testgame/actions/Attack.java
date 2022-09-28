@@ -14,17 +14,7 @@ public class Attack implements Action {
 
   @Override
   public ActionResult perform(TestGame game, Actor actor) {
-    int dx = 0;
-    int dy = 0;
-    if (target.getX() > actor.getX())
-      dx = 1;
-    else if (target.getX() < actor.getX())
-      dx = -1;
-    if (target.getY() > actor.getY())
-      dy = 1;
-    else if (target.getY() < actor.getY())
-      dy = -1;
-    actor.bump(dx, dy, Constants.ATTACK_RATIO);
+    actor.bump(actor.dir(target), Constants.ATTACK_RATIO);
     game.addLog(actor + " attacks " + target);
     game.playSound(Sounds.HIT);
     return ActionResult.success();
