@@ -27,14 +27,10 @@ public class Move implements Action {
     if (actor.canOpenDoors() && map.is(pos, Tiles.DOOR_CLOSED))
       return ActionResult.alternateAction(new OpenDoor(pos));
     if (map.isBlocked(pos)) {
-      if (actor.waitOnBlocked()) {
-        return ActionResult.alternateAction(new Wait());
-      } else {
-        actor.bump(dir, Constants.BUMPING_RATIO);
-        game.addLog(actor + " bumps in to the wall");
-        game.playSound(Sounds.BUMP);
-        return ActionResult.failure();
-      }
+      actor.bump(dir, Constants.BUMPING_RATIO);
+      game.addLog(actor + " bumps in to the wall");
+      game.playSound(Sounds.BUMP);
+      return ActionResult.failure();
     }
     Optional<Actor> blockingActor = game.actorAt(pos);
     if (blockingActor.isEmpty()) {

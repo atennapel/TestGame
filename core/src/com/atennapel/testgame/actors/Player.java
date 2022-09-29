@@ -42,11 +42,6 @@ public class Player extends Actor {
   }
 
   @Override
-  public boolean waitOnBlocked() {
-    return false;
-  }
-
-  @Override
   public boolean canOpenDoors() {
     return true;
   }

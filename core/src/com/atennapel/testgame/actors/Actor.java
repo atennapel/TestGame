@@ -37,14 +37,12 @@ public abstract class Actor {
   }
 
   public abstract Optional<Action> getAction(TestGame game);
+  public void succeeded() {}
+  public void failed() {}
 
   public abstract int getTile();
 
   public abstract RGB getColor();
-
-  public boolean waitOnBlocked() {
-    return true;
-  }
 
   public boolean canOpenDoors() {
     return false;
@@ -77,6 +75,8 @@ public abstract class Actor {
   public void move(int x, int y) {
     goalX = x * GRID;
     goalY = y * GRID;
+    pos.x = x;
+    pos.y = y;
   }
 
   public void move(Pos pos) {
@@ -89,15 +89,11 @@ public abstract class Actor {
 
   public boolean updateAnimation(float dt) {
     if (goalX == actualX && goalY == actualY) {
-      if (bumping) {
-        bumping = false;
-        goalX = pos.x * GRID;
-        goalY = pos.y * GRID;
-      } else {
-        pos.x = goalX / GRID;
-        pos.y = goalY / GRID;
+      if (!bumping)
         return false;
-      }
+      bumping = false;
+      goalX = pos.x * GRID;
+      goalY = pos.y * GRID;
     }
     int change = (int) (dt * ANIMATION_SPEED);
     if (actualX < goalX) {

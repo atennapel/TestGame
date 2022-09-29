@@ -31,6 +31,16 @@ public class Map {
         map[WIDTH - 1][i] = WALL;
       }
     }
+    for (int i = 6; i < WIDTH - 6; i++) {
+      map[i][5] = WALL;
+      map[i][HEIGHT - 6] = WALL;
+      if (i > 5 && i < HEIGHT - 6) {
+        map[6][i] = WALL;
+        map[WIDTH - 7][i] = WALL;
+      }
+    }
+
+    map[6][7] = DOOR_CLOSED;
   }
 
   public boolean isBlocked(int x, int y) {

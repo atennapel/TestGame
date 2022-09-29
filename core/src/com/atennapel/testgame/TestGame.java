@@ -212,9 +212,12 @@ public class TestGame extends ApplicationAdapter {
         result = result.getAlternateAction().get().perform(this, actor);
       if (result.succeeded()) {
         actor.resetEnergy();
+        actor.succeeded();
         turn++;
         if (actor instanceof Player)
           playerTurn++;
+      } else {
+        actor.failed();
       }
     }
   }
