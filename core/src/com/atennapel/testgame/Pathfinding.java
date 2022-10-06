@@ -59,7 +59,7 @@ public class Pathfinding {
       List<Loc> ns = new ArrayList<>();
       for (int nx = x - 1; nx <= x + 1; nx++) {
         for (int ny = y - 1; ny <= y + 1; ny++) {
-          if (nx < 0 || nx >= WIDTH || ny < 0 || ny >= HEIGHT || (nx == x && ny == y) || map.isBlocked(nx, ny))
+          if (nx < 0 || nx >= WIDTH || ny < 0 || ny >= HEIGHT || (nx == x && ny == y) || map.canNotWalk(nx, ny))
             continue;
           ns.add(new Loc(nx, ny, 0));
         }

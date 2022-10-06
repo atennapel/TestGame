@@ -69,6 +69,8 @@ public class TestGame extends ApplicationAdapter {
 
   private Player player;
   private Monster monster;
+  private Mine mine;
+  private Pickaxe pickaxe;
 
   private List<Actor> actors = new ArrayList<>();
 
@@ -77,6 +79,7 @@ public class TestGame extends ApplicationAdapter {
   private int playerTurn = 0;
   private List<LogLine> logs = new ArrayList<>();
   private boolean updatingAnimations = false;
+  private boolean updatingPlayerAnimations = false;
 
   @Override
   public void create() {
@@ -93,34 +96,40 @@ public class TestGame extends ApplicationAdapter {
 
     player = new Player(new Pos(3, 3));
     monster = new Monster(new Pos(7, 6));
+    mine = new Mine(new Pos(17, 8));
+    pickaxe = new Pickaxe(new Pos(1, 1));
     actors.add(player);
     actors.add(monster);
+    actors.add(mine);
+    actors.add(pickaxe);
 
     map = new Map();
     shadowCasting = new ShadowCasting(map);
     pathfinding = new Pathfinding(map);
 
-    player.getInventory().add("gold", 10);
-    player.getInventory().add("sword of fire", 1);
-    player.getInventory().add("scroll of ennui", 2);
-    player.getInventory().add("water bottle", 3);
-    player.getInventory().add("water bottle", 3);
-    player.getInventory().add("a", 3);
-    player.getInventory().add("b", 3);
-    player.getInventory().add("c", 3);
-    player.getInventory().add("d", 3);
-    player.getInventory().add("e", 3);
-    player.getInventory().add("f", 3);
-    player.getInventory().add("g", 3);
-    player.getInventory().add("h", 3);
-    player.getInventory().add("i", 3);
-    player.getInventory().add("j", 3);
-    player.getInventory().add("k", 3);
-    player.getInventory().add("l", 3);
+    /*
+     * player.getInventory().add("gold", 10);
+     * player.getInventory().add("sword of fire", 1);
+     * player.getInventory().add("scroll of ennui", 2);
+     * player.getInventory().add("water bottle", 3);
+     * player.getInventory().add("water bottle", 3);
+     * player.getInventory().add("a", 3);
+     * player.getInventory().add("b", 3);
+     * player.getInventory().add("c", 3);
+     * player.getInventory().add("d", 3);
+     * player.getInventory().add("e", 3);
+     * player.getInventory().add("f", 3);
+     * player.getInventory().add("g", 3);
+     * player.getInventory().add("h", 3);
+     * player.getInventory().add("i", 3);
+     * player.getInventory().add("j", 3);
+     * player.getInventory().add("k", 3);
+     * player.getInventory().add("l", 3);
+     */
   }
 
   private void handleInput() {
-    if (updatingAnimations)
+    if (updatingPlayerAnimations)
       return;
     if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
       if (screenMode == ScreenMode.GAME)
@@ -224,9 +233,14 @@ public class TestGame extends ApplicationAdapter {
 
   private void updateAnimations() {
     updatingAnimations = false;
+    updatingPlayerAnimations = false;
     for (int i = 0; i < actors.size(); i++) {
-      if (actors.get(i).updateAnimation(Gdx.graphics.getDeltaTime()))
+      Actor actor = actors.get(i);
+      if (actor.updateAnimation(Gdx.graphics.getDeltaTime())) {
         updatingAnimations = true;
+        if (actor == player)
+          updatingPlayerAnimations = true;
+      }
     }
   }
 
@@ -305,8 +319,11 @@ public class TestGame extends ApplicationAdapter {
     }
 
     // actors
-    if (map.isVisible(monster.getPos()))
-      draw(monster);
+    for (Actor actor : actors) {
+      if (actor != player && map.isVisible(actor.getPos())) {
+        draw(actor);
+      }
+    }
     draw(player);
 
     // debug text
@@ -358,8 +375,16 @@ public class TestGame extends ApplicationAdapter {
     batch.end();
   }
 
+  private void cleanUpActors() {
+    for (Actor actor : new ArrayList<>(actors)) {
+      if (actor.toBeRemoved)
+        actors.remove(actor);
+    }
+  }
+
   @Override
   public void render() {
+    cleanUpActors();
     handleInput();
     processTurn();
     updateAnimations();
@@ -414,6 +439,14 @@ public class TestGame extends ApplicationAdapter {
 
   public boolean anyActorAt(Pos pos) {
     return actorAt(pos).isPresent();
+  }
+
+  public <C extends Actor> Optional<Pos> findActor(Class<C> cls) {
+    for (Actor actor : actors) {
+      if (actor.getClass().equals(cls))
+        return Optional.of(actor.getPos());
+    }
+    return Optional.empty();
   }
 
   public void addLog(String msg) {

@@ -15,6 +15,10 @@ public class GoalResult {
     this.goal = goal;
   }
 
+  public static GoalResult succeeded() {
+    return new GoalResult(false, false, null, null);
+  }
+
   public static GoalResult alternateGoal(Goal goal) {
     return new GoalResult(false, false, null, goal);
   }
@@ -29,8 +33,10 @@ public class GoalResult {
 
   @Override
   public String toString() {
-    if (failed) return "GoalResult(failed)";
-    if (hasAction) return "GoalResult(" + action + ")";
+    if (failed)
+      return "GoalResult(failed)";
+    if (hasAction)
+      return "GoalResult(" + action + ")";
     return "GoalResult(" + goal + ")";
   }
 }

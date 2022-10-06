@@ -43,6 +43,11 @@ public class Map {
     map[6][7] = DOOR_CLOSED;
   }
 
+  public boolean canNotWalk(int x, int y) {
+    Tiles t = map[x][y];
+    return t == WALL;
+  }
+
   public boolean isBlocked(int x, int y) {
     Tiles t = map[x][y];
     return t == WALL || t == DOOR_CLOSED;

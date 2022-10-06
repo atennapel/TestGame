@@ -14,7 +14,9 @@ public abstract class Actor {
   protected Pos pos = new Pos(0, 0);
   protected int energy = 0;
   protected int speed = 100;
-  protected final Inventory inventory;
+  protected final Inventory inventory = new Inventory();
+
+  public boolean toBeRemoved = false;
 
   // for animations
   protected int actualX = 0;
@@ -24,7 +26,6 @@ public abstract class Actor {
   protected boolean bumping = false;
 
   protected Actor(Pos pos) {
-    this.inventory = new Inventory();
     this.pos = pos;
     actualX = pos.x * GRID;
     actualY = pos.y * GRID;
@@ -37,8 +38,12 @@ public abstract class Actor {
   }
 
   public abstract Optional<Action> getAction(TestGame game);
-  public void succeeded() {}
-  public void failed() {}
+
+  public void succeeded() {
+  }
+
+  public void failed() {
+  }
 
   public abstract int getTile();
 

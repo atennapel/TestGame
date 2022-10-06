@@ -11,16 +11,23 @@ public class Inventory {
   }
 
   public void add(String item, int count) {
-    int currentCount = entries.getOrDefault(item, 0);
-    entries.put(item, currentCount + count);
-  }
-
-  public int size() {
-    return entries.size();
+    entries.put(item, count(item) + count);
   }
 
   public void add(String item) {
     add(item, 1);
+  }
+
+  public void remove(String item, int count) {
+    entries.put(item, Math.max(0, count(item) - count));
+  }
+
+  public void remove(String item) {
+    remove(item, 1);
+  }
+
+  public int size() {
+    return entries.size();
   }
 
   public int count(String item) {

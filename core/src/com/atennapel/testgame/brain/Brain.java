@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.atennapel.testgame.Pos;
 import com.atennapel.testgame.TestGame;
 import com.atennapel.testgame.actions.Action;
+import com.atennapel.testgame.actions.Wait;
 import com.atennapel.testgame.actors.Actor;
 
 public class Brain {
@@ -16,7 +17,8 @@ public class Brain {
   }
 
   public Action getAction(TestGame game) {
-    if (ogoal.isEmpty()) getGoal(game);
+    if (ogoal.isEmpty())
+      getGoal(game);
     GoalResult result = ogoal.get().perform(game, actor);
     while (result.failed) {
       getGoal(game);
@@ -24,6 +26,8 @@ public class Brain {
     }
     while (!result.hasAction) {
       Goal originalGoal = ogoal.get();
+      if (result.goal == null)
+        return new Wait();
       result.goal.setOriginalGoal(originalGoal);
       ogoal = Optional.of(result.goal);
       result = ogoal.get().perform(game, actor);
@@ -40,15 +44,21 @@ public class Brain {
     if (ogoal.isPresent()) {
       Goal goal = ogoal.get();
       Optional<Goal> originalGoal = goal.getOriginalGoal();
-      if (originalGoal.isPresent()) ogoal = originalGoal;
-      else ogoal = Optional.empty();
+      if (originalGoal.isPresent())
+        ogoal = originalGoal;
+      else
+        ogoal = Optional.empty();
     }
   }
 
   private void getGoal(TestGame game) {
-    int x = game.getRandom().nextInt(17) + 1;
-    int y = game.getRandom().nextInt(10) + 1;
-    this.ogoal = Optional.<Goal>of(new Goto(new Pos(x, y)));
+    if (actor.getInventory().count("gold") < 10) {
+      this.ogoal = Optional.of(new AcquireItem("gold", 10));
+    } else {
+      int x = game.getRandom().nextInt(17) + 1;
+      int y = game.getRandom().nextInt(10) + 1;
+      this.ogoal = Optional.<Goal>of(new Goto(new Pos(x, y)));
+    }
   }
 
   @Override

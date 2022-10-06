@@ -14,6 +14,4 @@ Some inspiration take from https://github.com/munificent/hauberk/ .
 - [x] Field of view
 - [x] Exploring map
 - [ ] Inventory
-
-## Questions
-- Should a NPC be able to fail an action? What should happen in this case?
+- [ ] Items in the world
